@@ -8,6 +8,7 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
+import java.sql.PreparedStatement;
 
 public class User {
   public String id, username, hashedPassword;
@@ -37,16 +38,18 @@ public class User {
   }
 
   public static User fetch(String un) {
-    Statement stmt = null;
+    PreparedStatement stmt = null;
     User user = null;
     try {
+      String sqlQuery = "select * from users where username = '" + "?" + "' limit 1";
       Connection cxn = Postgres.connection();
-      stmt = cxn.createStatement();
+      stmt = cxn.prepareStatement(sqlQuery);
+      stmt.setString(1, un);
       System.out.println("Opened database successfully");
 
-      String query = "select * from users where username = '" + un + "' limit 1";
+      
       System.out.println(query);
-      ResultSet rs = stmt.executeQuery(query);
+      ResultSet rs = stmt.executeQuery();
       if (rs.next()) {
         String user_id = rs.getString("user_id");
         String username = rs.getString("username");
